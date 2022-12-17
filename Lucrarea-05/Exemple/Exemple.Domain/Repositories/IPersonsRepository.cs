@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace Exemple.Domain.Repositories
 {
-    public interface IStudentsRepository
+    public interface IPersonsRepository
     {
-        TryAsync<List<StudentRegistrationNumber>> TryGetExistingStudents(IEnumerable<string> studentsToCheck);
+        TryAsync<List<PersonRegistrationNumber>> TryGetExistingPersons(IEnumerable<string> personsToCheck);
     }
 }

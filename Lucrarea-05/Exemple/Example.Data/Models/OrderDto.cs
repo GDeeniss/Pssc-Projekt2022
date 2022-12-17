@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace Example.Data.Models
 {
-    public class GradeDto
+    public class OrderDto
     {
-        public int GradeId { get; set; }
-        public int StudentId { get; set; }
+        public int OrderId { get; set; }
+        public int PersonId { get; set; }
         public decimal? Exam { get; set; }
         public decimal? Activity { get; set; }
         public decimal? Final { get; set; }

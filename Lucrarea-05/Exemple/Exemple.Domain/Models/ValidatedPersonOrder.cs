@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace Exemple.Domain.Models
 {
-    public record UnvalidatedStudentGrade(string StudentRegistrationNumber, string ExamGrade, string ActivityGrade);
+    public record ValidatedPersonOrder(PersonRegistrationNumber PersonRegistrationNumber, Order ExamOrder, Order ActivityOrder);
 }

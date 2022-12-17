@@ -1,8 +1,8 @@
 ﻿using Exemple.Domain.Models;
 using System;
 using System.Collections.Generic;
-using static Exemple.Domain.Models.ExamGrades;
-using static Exemple.Domain.ExamGradesOperation;
+using static Exemple.Domain.Models.ExamOrders;
+using static Exemple.Domain.ExamOrdersOperation;
 using Exemple.Domain;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -18,29 +18,23 @@ namespace Exemple
 {
     class Program
     {
-        private static readonly Random random = new Random();
-
-        //private static string ConnectionString = "Server=localhost\\SQLEXPRESS;Database=master;Trusted_Connection=True;Pooling=true";
-
         static async Task Main(string[] args)
         {
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
 
-                builder.DataSource = "tcp:pssc2022.database.windows.net"; 
-                builder.UserID = "denis";            
-                builder.Password = "Pssc2022@";     
-                builder.InitialCatalog = "Students";
+            builder.DataSource = "tcp:pssc2022.database.windows.net"; 
+            builder.UserID = "denis";            
+            builder.Password = "Pssc2022@";     
+            builder.InitialCatalog = "Persons";
+
             try 
             {
-         
                 using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
-                {
-                    Console.WriteLine("\nQuery data example:");
-                    Console.WriteLine("=========================================\n");
-                    
+                {                    
                     connection.Open();       
 
-                    String sql = "SELECT Name, RegistrationNumber FROM dbo.Student";
+                    Console.WriteLine("Available users data:");
+                    String sql = "SELECT Name, RegistrationNumber FROM dbo.Person";
 
                     using (SqlCommand commanding = new SqlCommand(sql, connection))
                     {
@@ -54,32 +48,31 @@ namespace Exemple
                     }                    
                 }
             }
+
             catch (SqlException e)
             {
                 Console.WriteLine(e.ToString());
             }
             
             using ILoggerFactory loggerFactory = ConfigureLoggerFactory();
-            ILogger<PublishGradeWorkflow> logger = loggerFactory.CreateLogger<PublishGradeWorkflow>();
+            ILogger<PublishOrderWorkflow> logger = loggerFactory.CreateLogger<PublishOrderWorkflow>();
 
-            var listOfGrades = ReadListOfGrades().ToArray();
-            PublishGradesCommand command = new(listOfGrades);
-            var dbContextBuilder = new DbContextOptionsBuilder<GradesContext>()
-                                                .UseSqlServer(builder.ConnectionString)
-                                                .UseLoggerFactory(loggerFactory);
-            GradesContext gradesContext = new GradesContext(dbContextBuilder.Options);
-            StudentsRepository studentsRepository = new(gradesContext);
-            GradesRepository gradesRepository = new(gradesContext);
-            PublishGradeWorkflow workflow = new(studentsRepository, gradesRepository, logger);
+            var listOfOrders = ReadListOfOrders().ToArray();
+            PublishOrdersCommand command = new(listOfOrders);
+            var dbContextBuilder = new DbContextOptionsBuilder<OrdersContext>().UseSqlServer(builder.ConnectionString).UseLoggerFactory(loggerFactory);
+            OrdersContext ordersContext = new OrdersContext(dbContextBuilder.Options);
+            PersonsRepository personsRepository = new(ordersContext);
+            OrdersRepository ordersRepository = new(ordersContext);
+            PublishOrderWorkflow workflow = new(personsRepository, ordersRepository, logger);
             var result = await workflow.ExecuteAsync(command);
 
             result.Match(
-                    whenExamGradesPublishFaildEvent: @event =>
+                    whenExamOrdersPublishFaildEvent: @event =>
                     {
                         Console.WriteLine($"Publish failed: {@event.Reason}");
                         return @event;
                     },
-                    whenExamGradesPublishScucceededEvent: @event =>
+                    whenExamOrdersPublishScucceededEvent: @event =>
                     {
                         Console.WriteLine($"Publish succeeded.");
                         Console.WriteLine(@event.Csv);
@@ -100,33 +93,33 @@ namespace Exemple
                                 .AddProvider(new Microsoft.Extensions.Logging.Debug.DebugLoggerProvider()));
         }
 
-        private static List<UnvalidatedStudentGrade> ReadListOfGrades()
+        private static List<UnvalidatedPersonOrder> ReadListOfOrders()
         {
-            List<UnvalidatedStudentGrade> listOfGrades = new();
+            List<UnvalidatedPersonOrder> listOfOrders = new();
             do
             {
-                //read registration number and grade and create a list of greads
+                //read registration number and order and create a list of greads
                 var registrationNumber = ReadValue("Registration Number: ");
                 if (string.IsNullOrEmpty(registrationNumber))
                 {
                     break;
                 }
 
-                var examGrade = ReadValue("Exam Grade: ");
-                if (string.IsNullOrEmpty(examGrade))
+                var examOrder = ReadValue("Exam Order: ");
+                if (string.IsNullOrEmpty(examOrder))
                 {
                     break;
                 }
 
-                var activityGrade = ReadValue("Activity Grade: ");
-                if (string.IsNullOrEmpty(activityGrade))
+                var activityOrder = ReadValue("Activity Order: ");
+                if (string.IsNullOrEmpty(activityOrder))
                 {
                     break;
                 }
 
-                listOfGrades.Add(new(registrationNumber, examGrade, activityGrade));
+                listOfOrders.Add(new(registrationNumber, examOrder, activityOrder));
             } while (true);
-            return listOfGrades;
+            return listOfOrders;
         }
 
         private static string? ReadValue(string prompt)

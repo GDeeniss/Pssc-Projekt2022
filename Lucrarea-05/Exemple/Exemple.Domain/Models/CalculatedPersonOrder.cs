@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Exemple.Domain.Models
 {
-    public record CalculatedSudentGrade(StudentRegistrationNumber StudentRegistrationNumber, Grade ExamGrade, Grade ActivityGrade, Grade FinalGrade)
+    public record CalculatedPersonOrder(PersonRegistrationNumber PersonRegistrationNumber, Order ExamOrder, Order ActivityOrder, Order FinalOrder)
     {
-        public int GradeId { get; set; }
+        public int OrderId { get; set; }
         public bool IsUpdated { get; set; } 
     }
 }

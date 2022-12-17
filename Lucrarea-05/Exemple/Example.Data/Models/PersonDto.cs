@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Example.Data.Models
 {
-    public class StudentDto
+    public class PersonDto
     {
-        public int StudentId {  get; set; }
+        public int PersonId {  get; set; }
         public string Name { get; set; }
         public string RegistrationNumber { get; set; }
     }
