@@ -25,16 +25,28 @@ namespace Exemple
             builder.DataSource = "tcp:pssc2022.database.windows.net"; 
             builder.UserID = "denis";            
             builder.Password = "Pssc2022@";     
-            builder.InitialCatalog = "Persons";
+            builder.InitialCatalog = "Students";
 
             try 
             {
                 using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
                 {                    
-                    connection.Open();       
+                    connection.Open();
 
-                    Console.WriteLine("Available users data:");
-                    String sql = "SELECT Name, RegistrationNumber FROM dbo.Person";
+                    // var name = ReadValue("Name: ");
+                    // var telephone = ReadValue("Telephone: ");
+                    // var email = ReadValue("Email: ");
+
+                    // var inserting = new SqlCommand("INSERT INTO dbo.People (Name, Email, Telephone) VALUES (@name, @email, @telephone);", connection);
+
+                    // inserting.Parameters.AddWithValue("@name", name);
+                    // inserting.Parameters.AddWithValue("@email", email);
+                    // inserting.Parameters.AddWithValue("@telephone", telephone);
+
+                    // inserting.ExecuteNonQuery();
+
+                    Console.WriteLine("Available products:");
+                    String sql = "SELECT * FROM dbo.Products";
 
                     using (SqlCommand commanding = new SqlCommand(sql, connection))
                     {
@@ -42,7 +54,8 @@ namespace Exemple
                         {
                             while (reader.Read())
                             {
-                                Console.WriteLine("{0} {1}", reader.GetString(0), reader.GetString(1));
+                                Console.WriteLine("Product name: {0}, available units: {1}, product price: {2}", reader.GetString(1), reader.GetDecimal(2), reader.GetDecimal(3));
+                                Console.WriteLine("----------");
                             }
                         }
                     }                    
@@ -99,25 +112,31 @@ namespace Exemple
             do
             {
                 //read registration number and order and create a list of greads
-                var registrationNumber = ReadValue("Registration Number: ");
-                if (string.IsNullOrEmpty(registrationNumber))
+                var name = ReadValue("Please enter your data to complete the purchase:\nName: ");
+                if (string.IsNullOrEmpty(name))
                 {
                     break;
                 }
 
-                var examOrder = ReadValue("Exam Order: ");
-                if (string.IsNullOrEmpty(examOrder))
+                var email = ReadValue("Email: ");
+                if (string.IsNullOrEmpty(email))
                 {
                     break;
                 }
 
-                var activityOrder = ReadValue("Activity Order: ");
-                if (string.IsNullOrEmpty(activityOrder))
+                var telephone = ReadValue("Telephone number: ");
+                if (string.IsNullOrEmpty(telephone))
                 {
                     break;
                 }
 
-                listOfOrders.Add(new(registrationNumber, examOrder, activityOrder));
+                var address = ReadValue("Billing address: ");
+                if (string.IsNullOrEmpty(address))
+                {
+                    break;
+                }
+
+                listOfOrders.Add(new(name, email, telephone, address));
             } while (true);
             return listOfOrders;
         }

@@ -6,11 +6,11 @@ namespace Exemple.Domain.Models
 {
     public record Order
     {
-        public decimal Value { get; }
+        public string Value { get; }
 
-        internal Order(decimal value)
+        internal Order(string value)
         {
-            if (IsValid(value))
+            if (value != "")
             {
                 Value = value;
             }
@@ -20,30 +20,23 @@ namespace Exemple.Domain.Models
             }
         }
 
-        public static Order operator +(Order a, Order b) => new Order((a.Value + b.Value) / 2m);
+        //public static Order operator +(Order a, Order b) => new Order((a.Value + b.Value) / 2m);
 
 
-        public Order Round()
-        {
-            var roundedValue = Math.Round(Value);
-            return new Order(roundedValue);
-        }
+        // public Order Round()
+        // {
+        //     var roundedValue = Math.Round(Value);
+        //     return new Order(roundedValue);
+        // }
 
-        public override string ToString()
-        {
-            return $"{Value:0.##}";
-        }
+        // public override string ToString()
+        // {
+        //     return $"{Value:0.##}";
+        // }
 
         public static Option<Order> TryParseOrder(string orderString)
         {
-            if(decimal.TryParse(orderString, out decimal numericOrder) && IsValid(numericOrder))
-            {
-                return Some<Order>(new(numericOrder));
-            }
-            else
-            {
-                return None;
-            }
+            return Some<Order>(new(orderString));
         }
 
         private static bool IsValid(decimal numericOrder) => numericOrder > 0 && numericOrder <= 10;

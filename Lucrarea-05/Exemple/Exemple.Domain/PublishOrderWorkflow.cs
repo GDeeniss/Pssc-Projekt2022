@@ -30,7 +30,7 @@ namespace Exemple.Domain
         {
             UnvalidatedExamOrders unvalidatedOrders = new UnvalidatedExamOrders(command.InputExamOrders);
 
-            var result = from persons in personsRepository.TryGetExistingPersons(unvalidatedOrders.OrderList.Select(order => order.PersonRegistrationNumber))
+            var result = from persons in personsRepository.TryGetExistingPersons(unvalidatedOrders.OrderList.Select(order => order.Name))
                                           .ToEither(ex => new FailedExamOrders(unvalidatedOrders.OrderList, ex) as IExamOrders)
                          from existingOrders in ordersRepository.TryGetExistingOrders()
                                           .ToEither(ex => new FailedExamOrders(unvalidatedOrders.OrderList, ex) as IExamOrders)

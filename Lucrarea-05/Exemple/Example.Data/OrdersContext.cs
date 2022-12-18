@@ -14,14 +14,14 @@ namespace Example.Data
         {
         }
 
-        public DbSet<OrderDto> Orders { get; set; }
+        public DbSet<CommandDto> Command { get; set; }
 
-        public DbSet<PersonDto> Persons { get; set; }
+        public DbSet<ProductDto> Products { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<PersonDto>().ToTable("Person").HasKey(s => s.PersonId);
-            modelBuilder.Entity<OrderDto>().ToTable("Order").HasKey(s => s.OrderId);
+            modelBuilder.Entity<ProductDto>().ToTable("Products").HasKey(s => s.ProductId);
+            modelBuilder.Entity<CommandDto>().ToTable("Command").HasKey(s => s.CommandId);
         }
     }
 }

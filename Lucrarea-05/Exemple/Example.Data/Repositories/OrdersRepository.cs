@@ -20,17 +20,18 @@ namespace Example.Data.Repositories
         }
 
         public TryAsync<List<CalculatedPersonOrder>> TryGetExistingOrders() => async () => (await (
-                          from g in dbContext.Orders
-                          join s in dbContext.Persons on g.PersonId equals s.PersonId
-                          select new { s.RegistrationNumber, g.OrderId, g.Exam, g.Activity, g.Final })
+                          from g in dbContext.Command
+                          join s in dbContext.Products on g.ProductId equals s.ProductId
+                          select new { s.ProductName, g.CommandId, g.Name, g.Email, g.Telephone, g.Address, g.Subtotal, g.Total })
                           .AsNoTracking()
                           .ToListAsync())
                           .Select(result => new CalculatedPersonOrder(
-                                                    PersonRegistrationNumber: new(result.RegistrationNumber),
-                                                    ExamOrder: new(result.Exam ?? 0m),
-                                                    ActivityOrder: new(result.Activity ?? 0m),
-                                                    FinalOrder: new(result.Final ?? 0m))
-                          { 
+                                                    Name: new(result.Name),
+                                                    Email: new(result.Email),
+                                                    Telephone: new(result.Telephone),
+                                                    Address: new(result.Address),
+                                                    FinalOrder: new(result.Total))
+                          {
                             OrderId = result.OrderId
                           })
                           .ToList();

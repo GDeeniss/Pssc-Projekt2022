@@ -25,15 +25,17 @@ namespace Exemple.Domain
             unvalidatedPersonOrder => ValidatePersonOrder(checkPersonExists, unvalidatedPersonOrder);
 
         private static EitherAsync<string, ValidatedPersonOrder> ValidatePersonOrder(Func<PersonRegistrationNumber, Option<PersonRegistrationNumber>> checkPersonExists, UnvalidatedPersonOrder unvalidatedOrder)=>
-            from examOrder in Order.TryParseOrder(unvalidatedOrder.ExamOrder)
-                                   .ToEitherAsync($"Invalid exam order ({unvalidatedOrder.PersonRegistrationNumber}, {unvalidatedOrder.ExamOrder})")
-            from activityOrder in Order.TryParseOrder(unvalidatedOrder.ActivityOrder)
-                                   .ToEitherAsync($"Invalid activity order ({unvalidatedOrder.PersonRegistrationNumber}, {unvalidatedOrder.ActivityOrder})")
-            from personRegistrationNumber in PersonRegistrationNumber.TryParse(unvalidatedOrder.PersonRegistrationNumber)
-                                   .ToEitherAsync($"Invalid person registration number ({unvalidatedOrder.PersonRegistrationNumber})")
-            from personExists in checkPersonExists(personRegistrationNumber)
-                                   .ToEitherAsync($"Person {personRegistrationNumber.Value} does not exist.")
-            select new ValidatedPersonOrder(personRegistrationNumber, examOrder, activityOrder);
+            from email in Order.TryParseOrder(unvalidatedOrder.Email)
+                                   .ToEitherAsync($"Invalid email ({unvalidatedOrder.Name}, {unvalidatedOrder.Email})")
+            from telephone in Order.TryParseOrder(unvalidatedOrder.Telephone)
+                                   .ToEitherAsync($"Invalid telephone ({unvalidatedOrder.Name}, {unvalidatedOrder.Telephone})")
+            from name in PersonRegistrationNumber.TryParse(unvalidatedOrder.Name)
+                                   .ToEitherAsync($"Invalid person name ({unvalidatedOrder.Name})")
+            from address in Order.TryParseOrder(unvalidatedOrder.Address)
+                                   .ToEitherAsync($"Invalid address ({unvalidatedOrder.Name}, {unvalidatedOrder.Address})")
+            from personExists in checkPersonExists(name)
+                                   .ToEitherAsync($"Person {name.Value} does not exist.")
+            select new ValidatedPersonOrder(name, email, telephone, address);
 
         private static Either<string, List<ValidatedPersonOrder>> CreateEmptyValatedOrdersList() =>
             Right(new List<ValidatedPersonOrder>());
@@ -65,10 +67,11 @@ namespace Exemple.Domain
                                                     .AsReadOnly());
 
         private static CalculatedPersonOrder CalculatePersonFinalOrder(ValidatedPersonOrder validOrder) => 
-            new CalculatedPersonOrder(validOrder.PersonRegistrationNumber,
-                                      validOrder.ExamOrder,
-                                      validOrder.ActivityOrder,
-                                      validOrder.ExamOrder + validOrder.ActivityOrder);
+            new CalculatedPersonOrder(validOrder.Name,
+                                      validOrder.Email,
+                                      validOrder.Telephone,
+                                      validOrder.Address,
+                                      validOrder.Email + validOrder.Telephone + validOrder.Address);
 
         public static IExamOrders MergeOrders(IExamOrders examOrders, IEnumerable<CalculatedPersonOrder> existingOrders) => examOrders.Match(
             whenUnvalidatedExamOrders: unvalidaTedExam => unvalidaTedExam,
@@ -80,8 +83,8 @@ namespace Exemple.Domain
 
         private static CalculatedExamOrders MergeOrders(IEnumerable<CalculatedPersonOrder> newList, IEnumerable<CalculatedPersonOrder> existingList)
         {
-            var updatedAndNewOrders = newList.Select(order => order with { OrderId = existingList.FirstOrDefault(g => g.PersonRegistrationNumber == order.PersonRegistrationNumber)?.OrderId ?? 0, IsUpdated = true });
-            var oldOrders = existingList.Where(order => !newList.Any(g => g.PersonRegistrationNumber == order.PersonRegistrationNumber));
+            var updatedAndNewOrders = newList.Select(order => order with { OrderId = existingList.FirstOrDefault(g => g.Name == order.Name)?.OrderId ?? 0, IsUpdated = true });
+            var oldOrders = existingList.Where(order => !newList.Any(g => g.Name == order.Name));
             var allOrders = updatedAndNewOrders.Union(oldOrders)
                                                .ToList()
                                                .AsReadOnly();
@@ -102,6 +105,6 @@ namespace Exemple.Domain
                                     DateTime.Now);
 
         private static StringBuilder CreateCsvLine(StringBuilder export, CalculatedPersonOrder order) =>
-            export.AppendLine($"{order.PersonRegistrationNumber.Value}, {order.ExamOrder}, {order.ActivityOrder}, {order.FinalOrder}");
+            export.AppendLine($"{order.Name.Value}, {order.Email}, {order.Telephone}, {order.Address}, {order.FinalOrder}");
     }
 }
