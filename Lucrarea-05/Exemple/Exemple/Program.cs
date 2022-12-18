@@ -69,16 +69,23 @@ namespace Exemple
             
             using ILoggerFactory loggerFactory = ConfigureLoggerFactory();
             ILogger<PublishOrderWorkflow> logger = loggerFactory.CreateLogger<PublishOrderWorkflow>();
-
+            Console.WriteLine("1");
             var listOfOrders = ReadListOfOrders().ToArray();
+            Console.WriteLine("2");
             PublishOrdersCommand command = new(listOfOrders);
+            Console.WriteLine("3");
             var dbContextBuilder = new DbContextOptionsBuilder<OrdersContext>().UseSqlServer(builder.ConnectionString).UseLoggerFactory(loggerFactory);
+            Console.WriteLine("4");
             OrdersContext ordersContext = new OrdersContext(dbContextBuilder.Options);
+            Console.WriteLine("5");
             PersonsRepository personsRepository = new(ordersContext);
+            Console.WriteLine("6");
             OrdersRepository ordersRepository = new(ordersContext);
+            Console.WriteLine("7");
             PublishOrderWorkflow workflow = new(personsRepository, ordersRepository, logger);
+            Console.WriteLine("8");
             var result = await workflow.ExecuteAsync(command);
-
+            Console.WriteLine("9");
             result.Match(
                     whenExamOrdersPublishFaildEvent: @event =>
                     {
@@ -109,35 +116,16 @@ namespace Exemple
         private static List<UnvalidatedPersonOrder> ReadListOfOrders()
         {
             List<UnvalidatedPersonOrder> listOfOrders = new();
-            do
-            {
-                //read registration number and order and create a list of greads
-                var name = ReadValue("Please enter your data to complete the purchase:\nName: ");
-                if (string.IsNullOrEmpty(name))
-                {
-                    break;
-                }
+            //read registration number and order and create a list of greads
+            var name = ReadValue("Please enter your data to complete the purchase:\nName: ");
 
-                var email = ReadValue("Email: ");
-                if (string.IsNullOrEmpty(email))
-                {
-                    break;
-                }
+            var email = ReadValue("Email: ");
 
-                var telephone = ReadValue("Telephone number: ");
-                if (string.IsNullOrEmpty(telephone))
-                {
-                    break;
-                }
+            var telephone = ReadValue("Telephone number: ");
 
-                var address = ReadValue("Billing address: ");
-                if (string.IsNullOrEmpty(address))
-                {
-                    break;
-                }
+            var address = ReadValue("Billing address: ");
 
-                listOfOrders.Add(new(name, email, telephone, address));
-            } while (true);
+            listOfOrders.Add(new(name, email, telephone, address));
             return listOfOrders;
         }
 
