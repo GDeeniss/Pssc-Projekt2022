@@ -8,27 +8,27 @@ using System.Threading.Tasks;
 namespace Exemple.Domain.Models
 {
     [AsChoice]
-    public static partial class ExamGradesPublishedEvent
+    public static partial class ExamOrdersPublishedEvent
     {
-        public interface IExamGradesPublishedEvent { }
+        public interface IExamOrdersPublishedEvent { }
 
-        public record ExamGradesPublishScucceededEvent : IExamGradesPublishedEvent 
+        public record ExamOrdersPublishScucceededEvent : IExamOrdersPublishedEvent 
         {
             public string Csv{ get;}
             public DateTime PublishedDate { get; }
 
-            internal ExamGradesPublishScucceededEvent(string csv, DateTime publishedDate)
+            internal ExamOrdersPublishScucceededEvent(string csv, DateTime publishedDate)
             {
                 Csv = csv;
                 PublishedDate = publishedDate;
             }
         }
 
-        public record ExamGradesPublishFaildEvent : IExamGradesPublishedEvent 
+        public record ExamOrdersPublishFaildEvent : IExamOrdersPublishedEvent 
         {
             public string Reason { get; }
 
-            internal ExamGradesPublishFaildEvent(string reason)
+            internal ExamOrdersPublishFaildEvent(string reason)
             {
                 Reason = reason;
             }
