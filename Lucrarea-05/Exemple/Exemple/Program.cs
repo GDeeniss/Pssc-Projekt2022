@@ -46,9 +46,13 @@ namespace Exemple
                     {
                         using (SqlDataReader reader = commanding.ExecuteReader())
                         {
+                            Console.WriteLine("Produsele noastre sunt:\n");
+                            Console.WriteLine("(1)Briose\n(2)Fursecuri\n(3)Savarine\n");
+                            Console.WriteLine("................................................");
+
                             while (reader.Read())
                             {
-                                Console.WriteLine("{0} {1}", reader.GetString(1), reader.GetString(2));
+                                Console.WriteLine("Id-ul produsului: {0} | Pretul produsului: {1}", reader.GetString(1), reader.GetString(2));
                             }
                         }
                     }                    
@@ -106,7 +110,7 @@ namespace Exemple
             do
             {
                 //read registration number and grade and create a list of greads
-                var name = ReadValue("Nume produs: ");
+                var name = ReadValue("Id produs: ");
                 if (string.IsNullOrEmpty(name))
                 {
                     break;
