@@ -33,20 +33,7 @@ namespace Exemple
                 {                    
                     connection.Open();
 
-                    // var name = ReadValue("Name: ");
-                    // var telephone = ReadValue("Telephone: ");
-                    // var email = ReadValue("Email: ");
-
-                    // var inserting = new SqlCommand("INSERT INTO dbo.People (Name, Email, Telephone) VALUES (@name, @email, @telephone);", connection);
-
-                    // inserting.Parameters.AddWithValue("@name", name);
-                    // inserting.Parameters.AddWithValue("@email", email);
-                    // inserting.Parameters.AddWithValue("@telephone", telephone);
-
-                    // inserting.ExecuteNonQuery();
-
-                    Console.WriteLine("Available products:");
-                    String sql = "SELECT * FROM dbo.Products";
+                    String sql = "SELECT * FROM dbo.Product";
 
                     using (SqlCommand commanding = new SqlCommand(sql, connection))
                     {
@@ -54,8 +41,7 @@ namespace Exemple
                         {
                             while (reader.Read())
                             {
-                                Console.WriteLine("Product name: {0}, available units: {1}, product price: {2}", reader.GetString(1), reader.GetDecimal(2), reader.GetDecimal(3));
-                                Console.WriteLine("----------");
+                                Console.WriteLine("{0} {1}", reader.GetString(1), reader.GetString(2));
                             }
                         }
                     }                    
@@ -111,32 +97,21 @@ namespace Exemple
             List<UnvalidatedPersonOrder> listOfOrders = new();
             do
             {
-                //read registration number and order and create a list of greads
-                var name = ReadValue("Please enter your data to complete the purchase:\nName: ");
+                //read registration number and grade and create a list of greads
+                var name = ReadValue("Nume produs: ");
                 if (string.IsNullOrEmpty(name))
                 {
                     break;
                 }
 
-                var email = ReadValue("Email: ");
-                if (string.IsNullOrEmpty(email))
+                var quantity = ReadValue("Cantitate: ");
+                if (string.IsNullOrEmpty(quantity))
                 {
                     break;
                 }
+                string subtotal="10";
 
-                var telephone = ReadValue("Telephone number: ");
-                if (string.IsNullOrEmpty(telephone))
-                {
-                    break;
-                }
-
-                var address = ReadValue("Billing address: ");
-                if (string.IsNullOrEmpty(address))
-                {
-                    break;
-                }
-
-                listOfOrders.Add(new(name, email, telephone, address));
+                listOfGrades.Add(new(name, quantity, subtotal));
             } while (true);
             return listOfOrders;
         }
