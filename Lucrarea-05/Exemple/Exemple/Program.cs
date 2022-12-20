@@ -1,8 +1,8 @@
 ﻿using Exemple.Domain.Models;
 using System;
 using System.Collections.Generic;
-using static Exemple.Domain.Models.ExamOrders;
-using static Exemple.Domain.ExamOrdersOperation;
+using static Exemple.Domain.Models.ExamGrades;
+using static Exemple.Domain.ExamGradesOperation;
 using Exemple.Domain;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -18,35 +18,29 @@ namespace Exemple
 {
     class Program
     {
+        private static readonly Random random = new Random();
+
+        //private static string ConnectionString = "Server=localhost\\SQLEXPRESS;Database=master;Trusted_Connection=True;Pooling=true";
+
         static async Task Main(string[] args)
         {
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
 
-            builder.DataSource = "tcp:pssc2022.database.windows.net"; 
-            builder.UserID = "denis";            
-            builder.Password = "Pssc2022@";     
-            builder.InitialCatalog = "Students";
-
+                builder.DataSource = "tcp:pssc2022.database.windows.net"; 
+                builder.UserID = "denis";            
+                builder.Password = "Pssc2022@";     
+                builder.InitialCatalog = "Students";
             try 
             {
+         
                 using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
-                {                    
-                    connection.Open();
+                {
+                    Console.WriteLine("\nQuery data example:");
+                    Console.WriteLine("=========================================\n");
+                    
+                    connection.Open();       
 
-                    // var name = ReadValue("Name: ");
-                    // var telephone = ReadValue("Telephone: ");
-                    // var email = ReadValue("Email: ");
-
-                    // var inserting = new SqlCommand("INSERT INTO dbo.People (Name, Email, Telephone) VALUES (@name, @email, @telephone);", connection);
-
-                    // inserting.Parameters.AddWithValue("@name", name);
-                    // inserting.Parameters.AddWithValue("@email", email);
-                    // inserting.Parameters.AddWithValue("@telephone", telephone);
-
-                    // inserting.ExecuteNonQuery();
-
-                    Console.WriteLine("Available products:");
-                    String sql = "SELECT * FROM dbo.Products";
+                    String sql = "SELECT * FROM dbo.Product";
 
                     using (SqlCommand commanding = new SqlCommand(sql, connection))
                     {
@@ -54,38 +48,38 @@ namespace Exemple
                         {
                             while (reader.Read())
                             {
-                                Console.WriteLine("Product name: {0}, available units: {1}, product price: {2}", reader.GetString(1), reader.GetDecimal(2), reader.GetDecimal(3));
-                                Console.WriteLine("----------");
+                                Console.WriteLine("{0} {1}", reader.GetString(1), reader.GetString(2));
                             }
                         }
                     }                    
                 }
             }
-
             catch (SqlException e)
             {
                 Console.WriteLine(e.ToString());
             }
             
             using ILoggerFactory loggerFactory = ConfigureLoggerFactory();
-            ILogger<PublishOrderWorkflow> logger = loggerFactory.CreateLogger<PublishOrderWorkflow>();
+            ILogger<PublishGradeWorkflow> logger = loggerFactory.CreateLogger<PublishGradeWorkflow>();
 
-            var listOfOrders = ReadListOfOrders().ToArray();
-            PublishOrdersCommand command = new(listOfOrders);
-            var dbContextBuilder = new DbContextOptionsBuilder<OrdersContext>().UseSqlServer(builder.ConnectionString).UseLoggerFactory(loggerFactory);
-            OrdersContext ordersContext = new OrdersContext(dbContextBuilder.Options);
-            PersonsRepository personsRepository = new(ordersContext);
-            OrdersRepository ordersRepository = new(ordersContext);
-            PublishOrderWorkflow workflow = new(personsRepository, ordersRepository, logger);
+            var listOfGrades = ReadListOfGrades().ToArray();
+            PublishGradesCommand command = new(listOfGrades);
+            var dbContextBuilder = new DbContextOptionsBuilder<GradesContext>()
+                                                .UseSqlServer(builder.ConnectionString)
+                                                .UseLoggerFactory(loggerFactory);
+            GradesContext gradesContext = new GradesContext(dbContextBuilder.Options);
+            StudentsRepository studentsRepository = new(gradesContext);
+            GradesRepository gradesRepository = new(gradesContext);
+            PublishGradeWorkflow workflow = new(studentsRepository, gradesRepository, logger);
             var result = await workflow.ExecuteAsync(command);
 
             result.Match(
-                    whenExamOrdersPublishFaildEvent: @event =>
+                    whenExamGradesPublishFaildEvent: @event =>
                     {
                         Console.WriteLine($"Publish failed: {@event.Reason}");
                         return @event;
                     },
-                    whenExamOrdersPublishScucceededEvent: @event =>
+                    whenExamGradesPublishScucceededEvent: @event =>
                     {
                         Console.WriteLine($"Publish succeeded.");
                         Console.WriteLine(@event.Csv);
@@ -106,39 +100,28 @@ namespace Exemple
                                 .AddProvider(new Microsoft.Extensions.Logging.Debug.DebugLoggerProvider()));
         }
 
-        private static List<UnvalidatedPersonOrder> ReadListOfOrders()
+        private static List<UnvalidatedStudentGrade> ReadListOfGrades()
         {
-            List<UnvalidatedPersonOrder> listOfOrders = new();
+            List<UnvalidatedStudentGrade> listOfGrades = new();
             do
             {
-                //read registration number and order and create a list of greads
-                var name = ReadValue("Please enter your data to complete the purchase:\nName: ");
+                //read registration number and grade and create a list of greads
+                var name = ReadValue("Nume produs: ");
                 if (string.IsNullOrEmpty(name))
                 {
                     break;
                 }
 
-                var email = ReadValue("Email: ");
-                if (string.IsNullOrEmpty(email))
+                var quantity = ReadValue("Cantitate: ");
+                if (string.IsNullOrEmpty(quantity))
                 {
                     break;
                 }
+                string subtotal="10";
 
-                var telephone = ReadValue("Telephone number: ");
-                if (string.IsNullOrEmpty(telephone))
-                {
-                    break;
-                }
-
-                var address = ReadValue("Billing address: ");
-                if (string.IsNullOrEmpty(address))
-                {
-                    break;
-                }
-
-                listOfOrders.Add(new(name, email, telephone, address));
+                listOfGrades.Add(new(name, quantity, subtotal));
             } while (true);
-            return listOfOrders;
+            return listOfGrades;
         }
 
         private static string? ReadValue(string prompt)

@@ -71,7 +71,7 @@ namespace Exemple.Domain
                                       validOrder.Email,
                                       validOrder.Telephone,
                                       validOrder.Address,
-                                      validOrder.Email + validOrder.Telephone + validOrder.Address);
+                                      validOrder.Address);
 
         public static IExamOrders MergeOrders(IExamOrders examOrders, IEnumerable<CalculatedPersonOrder> existingOrders) => examOrders.Match(
             whenUnvalidatedExamOrders: unvalidaTedExam => unvalidaTedExam,

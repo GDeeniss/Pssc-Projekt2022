@@ -18,11 +18,11 @@ namespace Example.Data.Repositories
 
         public TryAsync<List<PersonRegistrationNumber>> TryGetExistingPersons(IEnumerable<string> personsToCheck) => async () =>
         {
-            var persons = await ordersContext.Persons
-                                              .Where(person => personsToCheck.Contains(person.RegistrationNumber))
+            var persons = await ordersContext.Products
+                                              .Where(person => personsToCheck.Contains(person.ProductName))
                                               .AsNoTracking()
                                               .ToListAsync();
-            return persons.Select(person => new PersonRegistrationNumber(person.RegistrationNumber))
+            return persons.Select(person => new PersonRegistrationNumber(person.ProductName))
                            .ToList();
         };
     }
