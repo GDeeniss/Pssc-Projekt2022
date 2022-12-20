@@ -30,32 +30,32 @@ namespace Example.Data.Repositories
                                                     Email: new(result.Email),
                                                     Telephone: new(result.Telephone),
                                                     Address: new(result.Address),
-                                                    FinalOrder: new(result.Total.ToString()))
+                                                    FinalOrder: new(result.Total))
                           {
-                            
+                            OrderId = result.OrderId
                           })
                           .ToList();
 
         public TryAsync<Unit> TrySaveOrders(PublishedExamOrders orders) => async () =>
         {
-            var persons = (await dbContext.Command.ToListAsync()).ToLookup(person=>person.Name);
+            var persons = (await dbContext.Persons.ToListAsync()).ToLookup(person=>person.RegistrationNumber);
             var newOrders = orders.OrderList
                                     .Where(g => g.IsUpdated && g.OrderId == 0)
-                                    .Select(g => new CommandDto()
+                                    .Select(g => new OrderDto()
                                     {
-                                        CommandId = persons[g.OrderId.ToString()].Single().CommandId,
-                                        Email = g.Email.Value,
-                                        Telephone = g.Telephone.Value,
-                                        Address = g.Address.Value,
+                                        PersonId = persons[g.PersonRegistrationNumber.Value].Single().PersonId,
+                                        Exam = g.ExamOrder.Value,
+                                        Activity = g.ActivityOrder.Value,
+                                        Final = g.FinalOrder.Value,
                                     });
             var updatedOrders = orders.OrderList.Where(g => g.IsUpdated && g.OrderId > 0)
-                                    .Select(g => new ProductDto()
+                                    .Select(g => new OrderDto()
                                     {
-                                        ProductId = g.OrderId,
-                                        ProductName = persons[g.Name.Value].Single().ProductId.ToString(),
-                                        Price = decimal.Parse(g.Telephone.Value.ToString()),
-                                        Stock = int.Parse(g.OrderId.ToString()),
-                                        //Stock = int.Parse(g.FinalOrder.ToString()),
+                                        OrderId = g.OrderId,
+                                        PersonId = persons[g.PersonRegistrationNumber.Value].Single().PersonId,
+                                        Exam = g.ExamOrder.Value,
+                                        Activity = g.ActivityOrder.Value,
+                                        Final = g.FinalOrder.Value,
                                     });
 
             dbContext.AddRange(newOrders);
