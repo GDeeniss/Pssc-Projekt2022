@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 
 namespace Exemple.Domain.Models
 {
-    public record StudentRegistrationNumber
+    public record PersonRegistrationNumber
     {
         private static readonly Regex ValidPattern = new("[0-9]$");
 
         public string Value { get; }
 
-        internal StudentRegistrationNumber(string value)
+        internal PersonRegistrationNumber(string value)
         {
             if (IsValid(value))
             {
@@ -23,7 +23,7 @@ namespace Exemple.Domain.Models
             }
             else
             {
-                throw new InvalidStudentRegistrationNumberException("");
+                throw new InvalidPersonRegistrationNumberException("");
             }
         }
 
@@ -34,11 +34,11 @@ namespace Exemple.Domain.Models
             return Value;
         }
 
-        public static Option<StudentRegistrationNumber> TryParse(string stringValue)
+        public static Option<PersonRegistrationNumber> TryParse(string stringValue)
         {
             if (IsValid(stringValue))
             {
-                return Some<StudentRegistrationNumber>(new(stringValue));
+                return Some<PersonRegistrationNumber>(new(stringValue));
             }
             else
             {
