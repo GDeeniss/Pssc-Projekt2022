@@ -34,10 +34,7 @@ namespace Exemple
             {
          
                 using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
-                {
-                    Console.WriteLine("\nQuery data example:");
-                    Console.WriteLine("=========================================\n");
-                    
+                {                    
                     connection.Open();       
 
                     String sql = "SELECT * FROM dbo.Product";
